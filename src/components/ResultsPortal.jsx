@@ -13,6 +13,7 @@ import FinalResult from './FinalResult.jsx'
 import LoadingEffect from './LoadingEffect.jsx';
 import EmptyState from './EmptyState.jsx';
 import {ResultsModules} from '../data.js';
+import { normalizeScores, resolveStudentId } from '../utils/scoreHelpers.js';
 import {
   Settings, 
   UserPlus, 
@@ -24,16 +25,6 @@ import {
   import {
     FileCheck,
   } from 'lucide-react';
-
-const normalizeScores = (scores) => {
-  if (!scores) return {};
-  return typeof scores.toObject === 'function' ? scores.toObject() : scores;
-};
-
-const resolveStudentId = (studentId) => {
-  if (!studentId) return null;
-  return typeof studentId === 'object' ? studentId._id || studentId.toString() : studentId;
-};
 
 const getClassWideStudentsFromResults = (resultData, termName, className, department) => {
   if (!resultData?.terms) return [];
