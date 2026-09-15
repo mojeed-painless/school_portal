@@ -1,0 +1,261 @@
+.profile__container {
+    width: 65%;
+    margin-inline: auto;
+    border-radius: 2rem;
+    padding: 0.5rem 0 2rem;
+    background: white;
+    box-shadow: 0 10px 25px -2px rgba(0, 0, 0, 0.2);
+}
+
+.profile__images {
+    border-radius: 1.5rem;
+    margin: 0.5rem;
+    margin-top: 0;
+    height: 12rem;
+    position: relative;
+    background-image: url('../images/profile-cover.jpg');
+    
+
+}
+
+
+.profile__picture {
+    width: 7rem;
+    border-radius: 50%;
+    position: absolute;
+    bottom: -3.5rem;
+    left: 2rem;
+    border: 4px solid white;
+    overflow: hidden;
+    /* box-shadow: 0 10px 15px -2px rgba(0, 0, 0, 0.1); */
+}
+
+.profile__picture img {
+    display: block;
+    /* border-radius: 50%; */
+}
+
+.edit-picture {
+    position: absolute;
+    left: 7.2rem;
+    bottom: -3rem;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.3rem;
+    border-radius: 50%;
+    border: 3px solid white;
+    cursor: pointer;
+    transition: all 400ms ease;
+    width: 1.8rem;
+    height: 1.8rem;
+}
+
+.edit-picture:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.profile__header-info {
+    margin: 4.5rem 2rem 2.5rem;
+}
+
+.profile__header-info p {
+    color: gray;
+    font-size: 0.9rem;
+    padding-bottom: 0.1rem;
+}
+
+.profile__header-info small {
+    background-color: rgba(5, 115, 5, 0.2);
+    color: rgb(5, 115, 5);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+}
+
+.profile__main-info {
+    margin: 0 2rem;
+    display: flex;
+    gap: 1.5rem;
+}
+
+.profile__main-info > div {
+    flex: 1;
+}
+
+.profile__main-info h5 {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.profile__details-icon {
+    color: grey;
+}
+
+.profile__details {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.profile__details > div {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.profile__details span {
+    display: flex;
+    height: fit-content;
+}
+
+.profile__details > div div {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile__details p {
+    font-size: 0.875rem;
+}
+
+.profile__details small {
+    color: grey;
+}
+
+/* Edit functionality styles */
+.profile__edit-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.profile__name-inputs {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.profile__input {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    width: 100%;
+    transition: border-color 0.3s ease;
+}
+
+.profile__input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.profile__actions {
+    margin: 2rem auto 0;
+    display: flex;
+    justify-content: center;
+}
+
+.profile__edit-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.profile__btn-small {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 12px 18px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.profile__btn-edit {
+    background-color: #007bff;
+    color: white;
+}
+
+.profile__btn-edit:hover {
+    background-color: #0056b3;
+}
+
+.profile__btn-save {
+    background-color: #28a745;
+    color: white;
+}
+
+.profile__btn-save:hover {
+    background-color: #1e7e34;
+}
+
+.profile__btn-cancel {
+    background-color: #6c757d;
+    color: white;
+}
+
+.profile__btn-cancel:hover {
+    background-color: #545b62;
+}
+
+@media screen and (max-width: 600px) {
+    .profile__container {
+        width: 100%;
+    }
+
+    .profile__images {
+        height: 10.5rem;
+    }
+
+    .profile__header-info {
+        margin: 4rem 1.5rem 2rem;
+    }
+
+    .profile__header-info h4 {
+        font-size: 1rem;
+    }
+
+    .profile__header-info p {
+        font-size: 0.875rem;
+    }
+
+    .profile__header-info small {
+        font-size: 0.79rem;
+    }
+
+    .profile__main-info {
+        margin: 0 1.5rem;
+        flex-direction: column;
+        gap: 2.5rem;
+    }
+
+    .profile__main-info h5 {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        padding-bottom: 0.7rem;
+    }
+
+    .profile__details {
+        margin-top: 1rem;
+        gap: 1rem;
+    }
+
+    .profile__actions {
+        margin: 2rem 1.5rem 0;
+    }
+
+    .profile__edit-actions {
+        /* flex-direction: column; */
+        gap: 0.5rem;
+    }
+
+    .btn-small {
+        justify-content: center;
+    }
+}
