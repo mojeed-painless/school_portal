@@ -5,6 +5,7 @@ import '../assets/styles/final-results.css';
 import cardHeader from '../assets/images/card-header.png';
 import { grades } from '../data';
 import { getClassSubjects } from '../api/classes';
+import { normalizeScores, resolveStudentId } from '../utils/scoreHelpers.js';
 import {Download} from 'lucide-react';
 
 const getPrincipalComment = (percentage, isThirdTerm = false) => {
@@ -23,11 +24,6 @@ const getPrincipalComment = (percentage, isThirdTerm = false) => {
   if (percent >= 55) return "Good performance. Can improve with more effort.";
   if (percent >= 50) return "Average performance. Needs focused attention in key areas.";
   return "Below average. Immediate and serious improvement required.";
-};
-
-const normalizeScores = (scores = {}) => {
-  if (!scores) return {};
-  return typeof scores.toObject === 'function' ? scores.toObject() : scores;
 };
 
 const getScoreFromTermValue = (value) => {
@@ -66,11 +62,6 @@ export default function FinalResult({
 }) {
   const isThirdTerm = selectedTerm === 'Third Term';
   const isSeniorSecondary = className && className.toUpperCase().startsWith('SS');
-
-  const resolveStudentId = (studentId) => {
-    if (studentId == null) return null;
-    return typeof studentId === 'object' ? (studentId._id || studentId.toString()) : String(studentId);
-  };
 
   const currentStudentId = resolveStudentId(studentResult?.studentId || studentResult?.id || studentResult?._id);
 

@@ -4,16 +4,8 @@ import { getClassSubjects } from '../api/classes.js';
 import SpreadSheet from './SpreadSheet.jsx';
 import LoadingEffect from './LoadingEffect.jsx';
 import '../assets/styles/result-approval.css';
+import { normalizeScores, resolveStudentId } from '../utils/scoreHelpers.js';
 import { Eye, CheckCircle, XCircle, Undo, SearchX } from 'lucide-react';
-const normalizeScores = (scores = {}) => {
-    if (!scores) return {};
-    return typeof scores.toObject === 'function' ? scores.toObject() : scores;
-};
-
-const resolveStudentId = (studentId) => {
-    if (!studentId) return null;
-    return typeof studentId === 'object' ? studentId._id || studentId.toString() : studentId;
-};
 
 const getClassWideStudentsFromResults = (resultsData, termName, className) => {
     if (!resultsData?.terms) return [];
