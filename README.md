@@ -38,28 +38,43 @@ A modern, responsive web application built with React for managing student infor
 
 ## 📋 Prerequisites
 
-- Node.js (version 16 or higher)
-- npm or yarn package manager
+- Node.js: v18.x or higher
+- npm: v9.x or higher
 
-## 🔧 Installation
+## 🔧 Fresh Clone & Quickstart
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/attanzeel-website-client.git
-   cd attanzeel-website-client
+   git clone https://github.com/mojeed-painless/school_portal.git
+   cd school_portal
    ```
 
 2. **Install dependencies**
    ```bash
-   npm install
+   npm ci
    ```
 
-3. **Start the development server**
+3. **Environment setup**
+   ```bash
+   cp .env.example .env
+   ```
+
+4. **Run tests**
+   ```bash
+   npm run test
+   ```
+
+5. **Build for production**
+   ```bash
+   npm run build
+   ```
+
+6. **Start the development server**
    ```bash
    npm run dev
    ```
 
-4. **Open your browser**
+7. **Open your browser**
 
    Navigate to `http://localhost:5173` (or the port shown in your terminal)
 
@@ -101,21 +116,13 @@ src/
 └── data.js              # Static data and configurations
 ```
 
-## 🚀 Build for Production
-
-```bash
-npm run build
-```
-
-The built files will be in the `dist/` directory, ready for deployment.
-
 ## 🧪 Testing
 
 ```bash
-npm run lint
+npm run test
 ```
 
-This will run ESLint to check for code quality issues.
+This runs the Vitest suite for the project.
 
 ## 🤝 Contributing
 
