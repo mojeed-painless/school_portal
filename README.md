@@ -43,40 +43,50 @@ A modern, responsive web application built with React for managing student infor
 
 ## 🔧 Fresh Clone & Quickstart
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/mojeed-painless/school_portal.git
-   cd school_portal
-   ```
+Follow these exact steps to run and test the project from a fresh clone:
 
-2. **Install dependencies**
-   ```bash
-   npm ci
-   ```
+### Prerequisites
 
-3. **Environment setup**
-   ```bash
-   cp .env.example .env
-   ```
+* **Node.js**: `v18.0.0` or higher
+* **npm**: `v9.0.0` or higher
 
-4. **Run tests**
-   ```bash
-   npm run test
-   ```
+### 1. Clone & Environment Setup
 
-5. **Build for production**
-   ```bash
-   npm run build
-   ```
+```bash
+git clone https://github.com/mojeed-painless/school_portal.git
+cd school_portal
+cp .env.example .env
+```
 
-6. **Start the development server**
-   ```bash
-   npm run dev
-   ```
+### 2. Reproducible Dependency Installation
 
-7. **Open your browser**
+```bash
+npm ci
+```
 
-   Navigate to `http://localhost:5173` (or the port shown in your terminal)
+### 3. Run Test Suite
+
+```bash
+# Run unit tests once
+npm run test
+
+# Run tests with coverage report
+npm run test:coverage
+```
+
+### 4. Build Production Bundle
+
+```bash
+npm run build
+```
+
+### 5. Start Local Development Server
+
+```bash
+npm run dev
+```
+
+---
 
 ## 📖 Usage
 
