@@ -13,7 +13,7 @@ import FinalResult from './FinalResult.jsx'
 import LoadingEffect from './LoadingEffect.jsx';
 import EmptyState from './EmptyState.jsx';
 import {ResultsModules} from '../data.js';
-import { normalizeScores, resolveStudentId } from '../utils/scoreHelpers.js';
+import { getClassWideStudentsFromResults } from '../utils/resultHelpers.js';
 import {
   Settings, 
   UserPlus, 
@@ -25,34 +25,6 @@ import {
   import {
     FileCheck,
   } from 'lucide-react';
-
-const getClassWideStudentsFromResults = (resultData, termName, className, department) => {
-  if (!resultData?.terms) return [];
-  const term = resultData.terms.find((t) => t.termName === termName);
-  if (!term) return [];
-  const seen = new Set();
-
-  return term.classes
-    .filter((cls) => cls.className === className && (
-      department
-        ? cls.department === department || cls.department === '' || cls.department === undefined
-        : cls.department === '' || cls.department === undefined
-    ))
-    .flatMap((cls) => (cls.students || []).map((student) => {
-      const id = resolveStudentId(student.studentId);
-      if (!id || seen.has(id)) return null;
-      seen.add(id);
-      const studentInfo = typeof student.studentId === 'object' ? student.studentId : null;
-      const name = studentInfo ? (studentInfo.name || `${studentInfo.firstName || ''} ${studentInfo.lastName || ''}`.trim()) : undefined;
-      return {
-        id,
-        name: name || student.name || 'Unknown',
-        scores: normalizeScores(student.scores),
-        comments: student.comments || ''
-      };
-    }))
-    .filter(Boolean);
-};
 
 function ResultChecker({
   selectedYear,

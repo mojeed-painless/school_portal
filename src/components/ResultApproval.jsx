@@ -5,27 +5,8 @@ import SpreadSheet from './SpreadSheet.jsx';
 import LoadingEffect from './LoadingEffect.jsx';
 import '../assets/styles/result-approval.css';
 import { normalizeScores, resolveStudentId } from '../utils/scoreHelpers.js';
+import { getClassWideStudentsFromResults } from '../utils/resultHelpers.js';
 import { Eye, CheckCircle, XCircle, Undo, SearchX } from 'lucide-react';
-
-const getClassWideStudentsFromResults = (resultsData, termName, className) => {
-    if (!resultsData?.terms) return [];
-    const term = resultsData.terms.find((t) => t.termName === termName);
-    if (!term) return [];
-    const seen = new Set();
-
-    return term.classes
-        .filter((cls) => cls.className === className)
-        .flatMap((cls) => (cls.students || []).map((student) => {
-            const id = resolveStudentId(student.studentId);
-            if (!id || seen.has(id)) return null;
-            seen.add(id);
-            return {
-                id,
-                scores: normalizeScores(student.scores || {})
-            };
-        }))
-        .filter(Boolean);
-};
 
 const ResultApproval = () => {
     const [results, setResults] = useState([]);
