@@ -25,7 +25,45 @@ const normalizeStudentScores = (scores = {}) => {
   );
 };
 
+const aggregateFlatStudentResults = (records = []) => {
+  const grouped = new Map();
+
+  for (const record of records) {
+    if (!record || typeof record !== 'object') continue;
+
+    const studentId = record.studentId ?? record.id ?? record.studentID ?? null;
+    if (!studentId) continue;
+
+    const current = grouped.get(studentId) ?? {
+      studentId,
+      studentName: record.studentName || record.name || 'Unknown',
+      totalScore: 0,
+      subjectCount: 0,
+    };
+
+    const scoreValue = Number(record.totalScore ?? record.score ?? 0);
+    current.totalScore += Number.isFinite(scoreValue) ? scoreValue : 0;
+    current.subjectCount += 1;
+    current.studentName = current.studentName || record.studentName || record.name || 'Unknown';
+    grouped.set(studentId, current);
+  }
+
+  return [...grouped.values()].map((student) => ({
+    studentId: student.studentId,
+    studentName: student.studentName,
+    totalScore: student.totalScore,
+    subjectCount: student.subjectCount,
+    averageScore: student.subjectCount ? student.totalScore / student.subjectCount : 0,
+  }));
+};
+
 export const getClassWideStudentsFromResults = (resultData, termName, className, department) => {
+  if (!resultData) return [];
+
+  if (Array.isArray(resultData)) {
+    return aggregateFlatStudentResults(resultData);
+  }
+
   if (!resultData?.terms) return [];
 
   const term = resultData.terms.find((t) => t.termName === termName);
