@@ -2,13 +2,16 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Edit } from 'lucide-react';
 import '../assets/styles/spreadsheet.css'
 import EditableSpreadsheet from './EditableSpreadsheet';
+import Toast from './Toast.jsx';
 import { updateStudentScores, submitForApproval, getApprovalStatus } from '../api/results.js';
+import { reportError } from '../utils/errorHandler.js';
 
 export default function SpreadSheet({ students = [], subjects = [], initialScores = {}, academicYear, termName, className, department, readOnly = false, allStudents = [], firstTermScores = {}, secondTermScores = {} }) {
     const [editMode, setEditMode] = useState(false);
     const [scores, setScores] = useState(initialScores);
     const [displayData, setDisplayData] = useState(initialScores);
     const [approvalStatus, setApprovalStatus] = useState(null);
+    const [toast, setToast] = useState({ message: '', type: 'info' });
 
     const isThirdTerm = termName === 'Third Term';
 
@@ -39,7 +42,8 @@ export default function SpreadSheet({ students = [], subjects = [], initialScore
                 const response = await getApprovalStatus(academicYear, termName, className, department);
                 setApprovalStatus(response.approvalStatus);
             } catch (error) {
-                console.error('Error fetching approval status:', error);
+                const userMessage = reportError('Failed to fetch approval status', error);
+                setToast({ message: userMessage, type: 'error' });
             }
         };
         fetchApprovalStatus();
@@ -54,8 +58,10 @@ export default function SpreadSheet({ students = [], subjects = [], initialScore
         try {
             await submitForApproval(academicYear, termName, className, department);
             setApprovalStatus('pending');
+            setToast({ message: 'Submitted for approval successfully.', type: 'success' });
         } catch (error) {
-            console.error('Error submitting for approval:', error);
+            const userMessage = reportError('Failed to submit scores for approval', error);
+            setToast({ message: userMessage, type: 'error' });
         }
     };
 
@@ -75,9 +81,10 @@ export default function SpreadSheet({ students = [], subjects = [], initialScore
                     await updateStudentScores(academicYear, termName, className, studentId, newDisplayData[studentId]);
                 }
             }
+            setToast({ message: 'Scores saved successfully.', type: 'success' });
         } catch (error) {
-            console.error('Error saving scores:', error);
-            // You might want to show an error message to the user here
+            const userMessage = reportError('Failed to save scores', error);
+            setToast({ message: userMessage, type: 'error' });
         }
     };
 
@@ -209,11 +216,6 @@ export default function SpreadSheet({ students = [], subjects = [], initialScore
             rankMap[item.id] = index + 1;
         });
 
-        console.groupCollapsed('SpreadSheet ranking debug');
-        console.log('className:', className, 'department:', department, 'useAllStudents:', useAllStudents, 'sourceStudents:', sourceStudents.length);
-        console.table(percentages.map(item => ({ id: item.id, name: item.name, percentage: item.percentage, rank: rankMap[item.id] })));
-        console.groupEnd();
-        
         return rankMap;
     }, [students, allStudents, calculatePercentage, calculatePercentageFromScores, calculateThirdTermPercentage, isThirdTerm, className, department]);
 
@@ -356,6 +358,14 @@ export default function SpreadSheet({ students = [], subjects = [], initialScore
                     </table>
                 </div>
             </div>
+
+            {toast.message && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast({ message: '', type: 'info' })}
+                />
+            )}
         </>
     )
 }
