@@ -3,6 +3,17 @@ import { Save, X } from 'lucide-react';
 import '../assets/styles/spreadsheet.css';
 import LoadingEffect from './LoadingEffect.jsx';
 
+export const calculateSubjectTotal = (ca = 0, exam = 0) => Number(ca) + Number(exam);
+
+export const calculateMO = (subjects = []) => {
+    return subjects.reduce((sum, sub) => sum + calculateSubjectTotal(sub.ca, sub.exam), 0);
+};
+
+export const calculatePercentage = (obtained, totalPossible) => {
+    if (!totalPossible || totalPossible === 0) return 0;
+    return Number(((obtained / totalPossible) * 100).toFixed(2));
+};
+
 export default function EditableSpreadsheet({ students = [], subjects = [], initialScores = {}, onSave, onSaveAndExit, onCancel }) {
     const [scores, setScores] = useState({});
     const [comments, setComments] = useState({});
@@ -94,31 +105,31 @@ export default function EditableSpreadsheet({ students = [], subjects = [], init
         return scores[key] !== undefined ? scores[key] : '';
     };
 
-    const calculateSubjectTotal = (studentId, subject) => {
+    const calculateSubjectTotalWrapper = (studentId, subject) => {
         const testKey = `${studentId}-${subject.code}-test`;
         const examKey = `${studentId}-${subject.code}-exam`;
         const test = parseFloat(scores[testKey]) || 0;
         const exam = parseFloat(scores[examKey]) || 0;
-        return test + exam;
+        return calculateSubjectTotal(test, exam);
     };
 
-    const calculateMO = (studentId) => {
+    const calculateMOWrapper = (studentId) => {
         return subjects.reduce((total, subject) => {
-            return total + calculateSubjectTotal(studentId, subject);
+            return total + calculateSubjectTotalWrapper(studentId, subject);
         }, 0);
     };
 
-    const calculatePercentage = (studentId) => {
+    const calculatePercentageWrapper = (studentId) => {
         if (subjects.length === 0) return '0.00';
-        const mo = calculateMO(studentId);
+        const mo = calculateMOWrapper(studentId);
         const maxTotal = subjects.length * 100;
-        return (mo / maxTotal * 100).toFixed(2);
+        return calculatePercentage(mo, maxTotal);
     };
 
     const getRanks = useMemo(() => {
         const percentages = students.map(student => ({
             id: student.id,
-            percentage: parseFloat(calculatePercentage(student.id))
+            percentage: parseFloat(calculatePercentageWrapper(student.id))
         }));
         
         percentages.sort((a, b) => b.percentage - a.percentage);
@@ -229,8 +240,8 @@ export default function EditableSpreadsheet({ students = [], subjects = [], init
 
                         <tbody>
                             {students.length > 0 ? students.map((student) => {
-                                const mo = calculateMO(student.id);
-                                const percentage = calculatePercentage(student.id);
+                                const mo = calculateMOWrapper(student.id);
+                                const percentage = calculatePercentageWrapper(student.id);
                                 const rank = getRanks[student.id] || '-';
 
                                 return (
@@ -239,7 +250,7 @@ export default function EditableSpreadsheet({ students = [], subjects = [], init
                                         {subjects.map(subject => {
                                             const test = getScore(student.id, subject.code, 'test');
                                             const exam = getScore(student.id, subject.code, 'exam');
-                                            const total = calculateSubjectTotal(student.id, subject);
+                                            const total = calculateSubjectTotalWrapper(student.id, subject);
 
                                             return (
                                                 <React.Fragment key={`${student.id}-${subject.code}`}>
