@@ -2,8 +2,22 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import ResultChecker from '../ResultChecker';
 import InputResult from '../InputResult';
+import ResultsPortal from '../../ResultsPortal';
 
 describe('result subcomponents', () => {
+  it('renders the ResultsPortal wrapper with its extracted widgets', () => {
+    render(
+      <ResultsPortal
+        onCheckResult={vi.fn()}
+        onSaveScores={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText('Results Portal')).toBeInTheDocument();
+    expect(screen.getByText('Check Term Result')).toBeInTheDocument();
+    expect(screen.getByText('Enter Student Marks')).toBeInTheDocument();
+  });
+
   it('submits the student result check payload', () => {
     const onCheckResult = vi.fn();
 
