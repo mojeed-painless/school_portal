@@ -8,24 +8,6 @@ import { getClassSubjects } from '../api/classes';
 import { normalizeScores, resolveStudentId } from '../utils/scoreHelpers.js';
 import {Download} from 'lucide-react';
 
-const getPrincipalComment = (percentage, isThirdTerm = false) => {
-  const percent = parseFloat(percentage);
-
-  if (isThirdTerm) {
-    if (percent >= 75) return "Excellent performance. Promoted to the next class";
-    if (percent >= 65) return "Very good result. Promoted to the next class";
-    if (percent >= 55) return "Good performance. Promoted to the next class";
-    if (percent >= 50) return "Average performance. Promoted to the next class";
-    return "Below average. Advised to repeat the class.";
-  }
-
-  if (percent >= 75) return "Excellent performance. Keep inspiring!";
-  if (percent >= 65) return "Very good result. Keep up the consistency.";
-  if (percent >= 55) return "Good performance. Can improve with more effort.";
-  if (percent >= 50) return "Average performance. Needs focused attention in key areas.";
-  return "Below average. Immediate and serious improvement required.";
-};
-
 const getScoreFromTermValue = (value) => {
   if (!value && value !== 0) return 0;
   if (typeof value === 'object') {
@@ -48,6 +30,30 @@ const getAverageFromScores = (values = []) => {
   return Math.ceil(validScores.reduce((sum, value) => sum + Number(value), 0) / validScores.length);
 };
 
+export const getPrincipalComment = (average) => {
+  if (average >= 70) return 'An outstanding performance. Keep it up!';
+  if (average >= 60) return 'A very good result. Continue striving for excellence.';
+  if (average >= 50) return 'A fair performance. There is room for improvement.';
+  return 'Needs significant improvement. Encouraged to work harder.';
+};
+
+export const getRemark = (grade) => {
+  switch (grade) {
+    case 'A':
+      return 'EXCELLENT';
+    case 'B':
+      return 'VERY GOOD';
+    case 'C':
+      return 'GOOD';
+    case 'D':
+      return 'PASS';
+    case 'E':
+      return 'FAIR';
+    default:
+      return 'FAIL';
+  }
+};
+
 export default function FinalResult({
   studentResult = { scores: {}, comments: '' },
   classStudents = [],
@@ -65,25 +71,6 @@ export default function FinalResult({
 
   const currentStudentId = resolveStudentId(studentResult?.studentId || studentResult?.id || studentResult?._id);
 
-  const getRemark = (score) => {
-    if (isSeniorSecondary) {
-      if (score >= 80) return 'A1';
-      if (score >= 70) return 'B2';
-      if (score >= 65) return 'B3';
-      if (score >= 60) return 'C4';
-      if (score >= 55) return 'C5';
-      if (score >= 50) return 'C6';
-      if (score >= 45) return 'D7';
-      if (score >= 40) return 'E8';
-      return 'F9';
-    } else {
-      if (score >= 75) return 'Excellent';
-      if (score >= 66) return 'Very Good';
-      if (score >= 55) return 'Good';
-      if (score >= 50) return 'Average';
-      return 'B.Average';
-    }
-  };
   const [subjectNames, setSubjectNames] = useState({});
   const removedSubjectCodes = useMemo(() => Array.isArray(removedSubjects) ? removedSubjects.map((subject) => subject.code) : [], [removedSubjects]);
 
