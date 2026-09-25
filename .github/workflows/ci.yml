@@ -1,17 +1,17 @@
-name: CI Workflow
+name: CI
 
 on:
   push:
-    branches: [ main, master, develop ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ main, master, develop ]
+    branches: [ main, develop ]
 
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup Node.js
@@ -20,14 +20,17 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install dependencies (Strict Lockfile)
+      - name: Install dependencies cleanly
         run: npm ci
 
-      - name: Run ESLint
+      - name: Audit security dependencies
+        run: npm audit --audit-level=high
+
+      - name: Run Linter
         run: npm run lint
 
-      - name: Run Vitest Suite
+      - name: Run Tests
         run: npm run test
 
-      - name: Build Production Bundle
+      - name: Build Project
         run: npm run build
