@@ -1,18 +1,21 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Save, X } from 'lucide-react';
 import '../assets/styles/spreadsheet.css';
 import LoadingEffect from './LoadingEffect.jsx';
 
-export const calculateSubjectTotal = (ca = 0, exam = 0) => Number(ca) + Number(exam);
+const calculateSubjectTotal = (ca = 0, exam = 0) => Number(ca) + Number(exam);
 
-export const calculateMO = (subjects = []) => {
+const calculateMO = (subjects = []) => {
     return subjects.reduce((sum, sub) => sum + calculateSubjectTotal(sub.ca, sub.exam), 0);
 };
 
-export const calculatePercentage = (obtained, totalPossible) => {
+const calculatePercentage = (obtained, totalPossible) => {
     if (!totalPossible || totalPossible === 0) return 0;
     return Number(((obtained / totalPossible) * 100).toFixed(2));
 };
+
+// eslint-disable-next-line react-refresh/only-export-components
+export { calculateSubjectTotal, calculateMO, calculatePercentage };
 
 export default function EditableSpreadsheet({ students = [], subjects = [], initialScores = {}, onSave, onSaveAndExit, onCancel }) {
     const [scores, setScores] = useState({});
@@ -36,9 +39,12 @@ export default function EditableSpreadsheet({ students = [], subjects = [], init
             // Handle comments
             convertedComments[studentId] = studentData.comments || '';
         });
-        setScores(convertedScores);
-        setComments(convertedComments);
-        setHasChanges(false);
+        // Use callback to batch state updates and avoid cascading renders
+        Promise.resolve().then(() => {
+            setScores(convertedScores);
+            setComments(convertedComments);
+            setHasChanges(false);
+        });
     }, [initialScores]);
 
     useEffect(() => {
@@ -119,12 +125,14 @@ export default function EditableSpreadsheet({ students = [], subjects = [], init
         }, 0);
     };
 
-    const calculatePercentageWrapper = (studentId) => {
+    const calculatePercentageWrapper = useCallback((studentId) => {
         if (subjects.length === 0) return '0.00';
-        const mo = calculateMOWrapper(studentId);
+        const mo = subjects.reduce((total, subject) => {
+            return total + calculateSubjectTotalWrapper(studentId, subject);
+        }, 0);
         const maxTotal = subjects.length * 100;
         return calculatePercentage(mo, maxTotal);
-    };
+    }, [subjects, calculateSubjectTotalWrapper]);
 
     const getRanks = useMemo(() => {
         const percentages = students.map(student => ({
@@ -140,7 +148,7 @@ export default function EditableSpreadsheet({ students = [], subjects = [], init
         });
         
         return ranks;
-    }, [students, scores, subjects]);
+    }, [students, scores, subjects, calculatePercentageWrapper]);
 
     const handleSave = async () => {
         const apiScores = {};

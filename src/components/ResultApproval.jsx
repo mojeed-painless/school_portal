@@ -5,7 +5,7 @@ import SpreadSheet from './SpreadSheet.jsx';
 import LoadingEffect from './LoadingEffect.jsx';
 import Toast from './Toast.jsx';
 import '../assets/styles/result-approval.css';
-import { normalizeScores, resolveStudentId } from '../utils/scoreHelpers.js';
+import { resolveStudentId } from '../utils/scoreHelpers.js';
 import { getClassWideStudentsFromResults } from '../utils/resultHelpers.js';
 import { reportError } from '../utils/errorHandler.js';
 import { Eye, CheckCircle, XCircle, Undo, SearchX } from 'lucide-react';
@@ -23,10 +23,6 @@ const ResultApproval = () => {
     const [showModal, setShowModal] = useState(false);
     const [toast, setToast] = useState({ message: '', type: 'info' });
 
-    useEffect(() => {
-        fetchResults();
-    }, [academicYear]);
-
     const fetchResults = async () => {
         try {
             setLoading(true);
@@ -41,6 +37,11 @@ const ResultApproval = () => {
             setLoading(false);
         }
     };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => {
+        Promise.resolve().then(() => fetchResults());
+    }, [academicYear]);
 
     const handleView = async (cls) => {
         try {

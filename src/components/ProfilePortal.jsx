@@ -29,8 +29,6 @@ import {
 } from 'lucide-react';
 
 export default function ProfilePortal({
-  userProfile = null,
-  onSaveProfile = () => {},
   isEditing = false,
 }) {
   const fileInputRef = useRef(null);
@@ -59,10 +57,8 @@ export default function ProfilePortal({
   });
 
   useEffect(() => {
-    if (isEditing !== isEditingMode) {
-      setIsEditingMode(isEditing);
-    }
-  }, [isEditing, isEditingMode]);
+    Promise.resolve().then(() => setIsEditingMode(isEditing));
+  }, [isEditing]);
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -133,15 +129,12 @@ export default function ProfilePortal({
 
   const handleEdit = () => {
     setIsEditingMode(true);
-    if (typeof onSaveProfile === 'function' && userProfile) {
-      onSaveProfile(userProfile);
-    }
   };
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const response = await updateProfile({
+      await updateProfile({
         firstName: editableData.firstName,
         lastName: editableData.lastName,
         dateOfBirth: editableData.dateOfBirth,
@@ -152,7 +145,7 @@ export default function ProfilePortal({
         whatsappNumber: editableData.whatsappNumber,
         profilePicture: profilePicture,
       });
-      
+
       setUserData(prev => ({
         ...prev,
         firstName: editableData.firstName,

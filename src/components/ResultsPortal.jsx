@@ -6,7 +6,6 @@ import InputResult from './results/InputResult';
 export default function ResultsPortal({
   onCheckResult,
   onSaveScores,
-  rawResults = [],
 }) {
   return (
     <div className="results-portal p-6">
@@ -22,17 +21,4 @@ export default function ResultsPortal({
 ResultsPortal.propTypes = {
   onCheckResult: PropTypes.func.isRequired,
   onSaveScores: PropTypes.func.isRequired,
-  rawResults: PropTypes.arrayOf(
-    PropTypes.shape({
-      studentId: PropTypes.string,
-      admissionNo: PropTypes.string,
-      studentName: PropTypes.string,
-      subject: PropTypes.string,
-      totalScore: PropTypes.number,
-    })
-  ),
-};
-
-ResultsPortal.defaultProps = {
-  rawResults: [],
 };

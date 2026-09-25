@@ -29,7 +29,6 @@ const Login = () => {
   // Verification Modal states
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [verificationEmail, setVerificationEmail] = useState('');
-  const [verificationMode, setVerificationMode] = useState('register'); // 'register' or 'login'
   
   const navigate = useNavigate();
 
@@ -71,7 +70,6 @@ const Login = () => {
       // Check if error is email verification required
       if (err.requiresVerification && err.email) {
         setVerificationEmail(err.email);
-        setVerificationMode('login');
         setShowVerificationModal(true);
         setError('Please verify your email to complete login.');
       } else {
@@ -109,7 +107,6 @@ const Login = () => {
       // Show verification modal for staff
       if (response.requiresVerification) {
         setVerificationEmail(regEmail);
-        setVerificationMode('register');
         setShowVerificationModal(true);
         setSuccessMessage('Registration successful! Check your email for the verification code.');
       } else {
@@ -150,7 +147,6 @@ const Login = () => {
       setTimeout(() => {
         setShowVerificationModal(false);
         setVerificationEmail('');
-        setVerificationMode('register');
         
         // Clear registration form
         setRegFirstName('');
@@ -166,17 +162,12 @@ const Login = () => {
         setError('');
       }, 2000);
     } catch (err) {
-      throw err;
+      setError(err.message || 'Verification failed. Please try again.');
     }
   };
 
   const handleResendCode = async (email) => {
-    try {
-      const response = await resendVerificationCode(email);
-      return response;
-    } catch (err) {
-      throw err;
-    }
+    return resendVerificationCode(email);
   };
 
   const handleCloseVerificationModal = () => {
@@ -185,7 +176,6 @@ const Login = () => {
     
     setShowVerificationModal(false);
     setVerificationEmail('');
-    setVerificationMode('register');
   };
 
   return (

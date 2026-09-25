@@ -3,7 +3,6 @@ import { describe, expect, it, vi } from 'vitest';
 import AcademicsPortal from '../AcademicsPortal';
 import ResultsPortal from '../ResultsPortal';
 import ProfilePortal from '../ProfilePortal';
-import { getProfile } from '../../api/auth';
 
 vi.mock('../../api/auth.js', () => ({
   getProfile: vi.fn(() => Promise.resolve({
@@ -21,7 +20,7 @@ vi.mock('../../api/auth.js', () => ({
     },
   })),
   updateProfile: vi.fn(),
-}));
+})); 
 
 describe('portal prop contracts', () => {
   it('renders the major portal components with valid props', async () => {
@@ -39,7 +38,6 @@ describe('portal prop contracts', () => {
       <ResultsPortal
         onCheckResult={vi.fn()}
         onSaveScores={vi.fn()}
-        rawResults={[]}
       />
     );
     expect(screen.getByText('Results Portal')).toBeInTheDocument();

@@ -30,14 +30,14 @@ const getAverageFromScores = (values = []) => {
   return Math.ceil(validScores.reduce((sum, value) => sum + Number(value), 0) / validScores.length);
 };
 
-export const getPrincipalComment = (average) => {
+const getPrincipalComment = (average) => {
   if (average >= 70) return 'An outstanding performance. Keep it up!';
   if (average >= 60) return 'A very good result. Continue striving for excellence.';
   if (average >= 50) return 'A fair performance. There is room for improvement.';
   return 'Needs significant improvement. Encouraged to work harder.';
 };
 
-export const getRemark = (grade) => {
+const getRemark = (grade) => {
   switch (grade) {
     case 'A':
       return 'EXCELLENT';
@@ -53,6 +53,9 @@ export const getRemark = (grade) => {
       return 'FAIL';
   }
 };
+
+// eslint-disable-next-line react-refresh/only-export-components
+export { getPrincipalComment, getRemark };
 
 export default function FinalResult({
   studentResult = { scores: {}, comments: '' },
@@ -234,30 +237,7 @@ export default function FinalResult({
     }
   };
 
-  const downloadPDF = () => {
-    const input = document.getElementById('final-result-card');
-    html2canvas(input, { scale: 2 }).then((canvas) => {
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgWidth = 210;
-      const pageHeight = 295;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
 
-      let position = 0;
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
-      pdf.save('result-card.pdf');
-    });
-  };
 
   return (
     <>
