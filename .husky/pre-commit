@@ -22,5 +22,5 @@ fi
 
 if [ -n "$STAGED_SRC" ]; then
   echo "Running related tests for staged source files..."
-  npm run test -- --related $STAGED_SRC --run
+  npx vitest related $STAGED_SRC --run
 fi

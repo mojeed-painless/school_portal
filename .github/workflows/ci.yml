@@ -2,9 +2,9 @@ name: CI Workflow
 
 on:
   push:
-    branches: [ main, master, "refactor/*", "fix/*", "feat/*", "build/*" ]
+    branches: [ main, master, develop ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, develop ]
 
 jobs:
   build-and-test:
@@ -14,20 +14,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20'
           cache: 'npm'
 
-      - name: Install dependencies cleanly
+      - name: Install dependencies (Strict Lockfile)
         run: npm ci
 
       - name: Run ESLint
-        run: npm run lint --if-present
+        run: npm run lint
 
-      - name: Run Test Suite
+      - name: Run Vitest Suite
         run: npm run test
 
-      - name: Build Application
+      - name: Build Production Bundle
         run: npm run build
