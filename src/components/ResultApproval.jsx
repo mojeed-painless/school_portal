@@ -3,9 +3,11 @@ import { getResultsByYear, getResultsByYearTermClass, approveResults, rejectResu
 import { getClassSubjects } from '../api/classes.js';
 import SpreadSheet from './SpreadSheet.jsx';
 import LoadingEffect from './LoadingEffect.jsx';
+import Toast from './Toast.jsx';
 import '../assets/styles/result-approval.css';
 import { normalizeScores, resolveStudentId } from '../utils/scoreHelpers.js';
 import { getClassWideStudentsFromResults } from '../utils/resultHelpers.js';
+import { reportError } from '../utils/errorHandler.js';
 import { Eye, CheckCircle, XCircle, Undo, SearchX } from 'lucide-react';
 
 const ResultApproval = () => {
@@ -19,6 +21,7 @@ const ResultApproval = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [showModal, setShowModal] = useState(false);
+    const [toast, setToast] = useState({ message: '', type: 'info' });
 
     useEffect(() => {
         fetchResults();
@@ -31,7 +34,8 @@ const ResultApproval = () => {
             const data = await getResultsByYear(academicYear);
             setResults(data);
         } catch (error) {
-            console.error('Error fetching results:', error);
+            const userMessage = reportError('Failed to fetch results', error);
+            setToast({ message: userMessage, type: 'error' });
             setError('Unable to load approval data. Please try again.');
         } finally {
             setLoading(false);
@@ -82,7 +86,8 @@ const ResultApproval = () => {
             setSelectedResult(cls);
             setShowModal(true);
         } catch (error) {
-            console.error('Error fetching subjects:', error);
+            const userMessage = reportError('Failed to load result details', error);
+            setToast({ message: userMessage, type: 'error' });
             setError('Unable to load result details. Please try again.');
         } finally {
             setLoading(false);
@@ -94,9 +99,11 @@ const ResultApproval = () => {
             setLoading(true);
             setError('');
             await approveResults(academicYear, termName, className, department);
+            setToast({ message: 'Results approved successfully.', type: 'success' });
             await fetchResults();
         } catch (error) {
-            console.error('Error approving results:', error);
+            const userMessage = reportError('Failed to approve results', error);
+            setToast({ message: userMessage, type: 'error' });
             setError('Unable to approve results. Please try again.');
         } finally {
             setLoading(false);
@@ -108,9 +115,11 @@ const ResultApproval = () => {
             setLoading(true);
             setError('');
             await rejectResults(academicYear, termName, className, department);
+            setToast({ message: 'Results rejected successfully.', type: 'success' });
             await fetchResults();
         } catch (error) {
-            console.error('Error rejecting results:', error);
+            const userMessage = reportError('Failed to reject results', error);
+            setToast({ message: userMessage, type: 'error' });
             setError('Unable to reject results. Please try again.');
         } finally {
             setLoading(false);
@@ -122,9 +131,11 @@ const ResultApproval = () => {
             setLoading(true);
             setError('');
             await reverseApproval(academicYear, termName, className, department);
+            setToast({ message: 'Approval reversed successfully.', type: 'success' });
             await fetchResults();
         } catch (error) {
-            console.error('Error reversing approval:', error);
+            const userMessage = reportError('Failed to reverse approval', error);
+            setToast({ message: userMessage, type: 'error' });
             setError('Unable to reverse approval. Please try again.');
         } finally {
             setLoading(false);
@@ -282,6 +293,10 @@ const ResultApproval = () => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {toast.message && (
+                <Toast message={toast.message} type={toast.type} onClose={() => setToast({ message: '', type: 'info' })} />
             )}
         </div>
     );

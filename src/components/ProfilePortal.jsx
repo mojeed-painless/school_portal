@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import UnderDevelopment from './UnderDevelopment.jsx';
+import Toast from './Toast.jsx';
 import '../assets/styles/profile-portal.css';
 import { updateProfile, getProfile } from '../api/auth.js';
+import { reportError } from '../utils/errorHandler.js';
 import profileImg from '../assets/images/mallam6.webp'
 import {
   Trophy,
@@ -39,6 +41,7 @@ export default function ProfilePortal() {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [toast, setToast] = useState({ message: '', type: 'info' });
   const [editableData, setEditableData] = useState({
     firstName: '',
     lastName: '',
@@ -79,7 +82,8 @@ export default function ProfilePortal() {
           whatsappNumber: user.whatsappNumber || '',
         });
       } catch (error) {
-        console.error('Error fetching profile:', error);
+        const userMessage = reportError('Failed to fetch profile', error);
+        setToast({ message: userMessage, type: 'error' });
         // Fallback to localStorage on error
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
@@ -97,7 +101,8 @@ export default function ProfilePortal() {
               lastName: user.lastName || '',
             }));
           } catch (err) {
-            console.error('Error parsing stored user data:', err);
+            const restoreMessage = reportError('Failed to restore cached profile', err);
+            setToast({ message: restoreMessage, type: 'error' });
           }
         }
       } finally {
@@ -142,10 +147,10 @@ export default function ProfilePortal() {
       }));
       
       setIsEditing(false);
-      alert('Profile updated successfully!');
+      setToast({ message: 'Profile updated successfully!', type: 'success' });
     } catch (error) {
-      console.error('Error saving profile:', error);
-      alert('Failed to save profile. Please try again.');
+      const userMessage = reportError('Failed to save profile', error);
+      setToast({ message: userMessage, type: 'error' });
     } finally {
       setIsSaving(false);
     }
@@ -170,13 +175,15 @@ export default function ProfilePortal() {
     if (file) {
       // Validate file type
       if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
+        const validationMessage = reportError('File validation failed', 'Please select an image file');
+        setToast({ message: validationMessage, type: 'warning' });
         return;
       }
 
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('File size must be less than 5MB');
+        const sizeMessage = reportError('File validation failed', 'File size must be less than 5MB');
+        setToast({ message: sizeMessage, type: 'warning' });
         return;
       }
 
@@ -185,7 +192,6 @@ export default function ProfilePortal() {
         const imageData = e.target?.result;
         if (imageData) {
           setProfilePicture(imageData);
-          console.log('Profile picture selected. Click Save to upload to server.');
         }
       };
       reader.readAsDataURL(file);
@@ -441,6 +447,12 @@ export default function ProfilePortal() {
           </button>
         )}
       </div>
+
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast({ message: '', type: 'info' })}
+      />
     </section>
   );
 }
