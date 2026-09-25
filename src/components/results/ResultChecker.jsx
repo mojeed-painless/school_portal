@@ -1,21 +1,39 @@
-import React from 'react';
-import { resolveStudentId } from '../../utils/scoreHelpers';
+import React, { useState } from 'react';
 
-const ResultChecker = ({ student, onCheckResult }) => {
-  const studentId = resolveStudentId(student);
+export default function ResultChecker({ onCheckResult }) {
+  const [pin, setPin] = useState('');
+  const [admissionNo, setAdmissionNo] = useState('');
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (!pin || !admissionNo) return;
+    onCheckResult({ pin, admissionNo });
+  };
 
   return (
-    <div className="p-4 bg-white rounded shadow-sm">
-      <h3 className="text-lg font-semibold mb-3">Check Results</h3>
-      <p className="text-sm text-gray-600 mb-2">Student ID: {studentId || 'N/A'}</p>
-      <button
-        onClick={() => onCheckResult(studentId)}
-        className="bg-indigo-600 text-white px-4 py-2 rounded"
-      >
-        View Academic Report
-      </button>
+    <div className="result-checker-card p-6 bg-white rounded shadow">
+      <h3 className="text-lg font-semibold mb-3">Check Term Result</h3>
+      <form onSubmit={handleSearch} className="space-y-3">
+        <input
+          type="text"
+          placeholder="Student Admission No"
+          className="w-full border px-3 py-2 rounded"
+          value={admissionNo}
+          onChange={(e) => setAdmissionNo(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Scratch Card PIN"
+          className="w-full border px-3 py-2 rounded"
+          value={pin}
+          onChange={(e) => setPin(e.target.value)}
+          required
+        />
+        <button type="submit" className="w-full py-2 bg-indigo-600 text-white rounded">
+          Check Result
+        </button>
+      </form>
     </div>
   );
-};
-
-export default ResultChecker;
+}
