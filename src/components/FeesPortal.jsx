@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import '../assets/styles/fees-portal.css';
 import UnderDevelopment from './UnderDevelopment.jsx';
 import { 
@@ -21,15 +21,7 @@ const MOCK_HISTORY = [
   { id: 'TXN-543', date: '2025-12-20', item: 'Sports Levy', amount: 2500, status: 'Completed' },
 ];
 
-export default function FeesPortal(onGoBack) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
-  // Financial State
-  const totalDesignated = 250000;
-  const amountPaid = 50000; // Change this to test "Cleared" state
-  const balance = totalDesignated - amountPaid;
-  const isCleared = balance <= 0;
-
+export default function FeesPortal() {
   return (
     // <div className="fee__container">
     //     <div className={`fee__side-drawer profile-nav ${isMenuOpen ? 'fee__is-open' : 'fee__is-close'}`}>
@@ -148,6 +140,6 @@ export default function FeesPortal(onGoBack) {
     //   </main>
     // </div>
 
-    <UnderDevelopment section="Fees" onGoBack={onGoBack} />
+    <UnderDevelopment section="Fees" />
   );
 }8

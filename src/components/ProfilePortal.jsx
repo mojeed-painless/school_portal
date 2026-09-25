@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import PropTypes from 'prop-types';
 import UnderDevelopment from './UnderDevelopment.jsx';
 import Toast from './Toast.jsx';
 import '../assets/styles/profile-portal.css';
@@ -27,7 +28,9 @@ import {
   X,
 } from 'lucide-react';
 
-export default function ProfilePortal() {
+export default function ProfilePortal({
+  isEditing = false,
+}) {
   const fileInputRef = useRef(null);
   
   const [userData, setUserData] = useState({
@@ -38,7 +41,7 @@ export default function ProfilePortal() {
   });
 
   const [profilePicture, setProfilePicture] = useState(profileImg);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditingMode, setIsEditingMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [toast, setToast] = useState({ message: '', type: 'info' });
@@ -52,6 +55,10 @@ export default function ProfilePortal() {
     contactNumber: '08132145677',
     whatsappNumber: '09014457562',
   });
+
+  useEffect(() => {
+    Promise.resolve().then(() => setIsEditingMode(isEditing));
+  }, [isEditing]);
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -121,13 +128,13 @@ export default function ProfilePortal() {
   const fullName = `${formatName(userData.firstName)} ${formatName(userData.lastName)}`.trim();
 
   const handleEdit = () => {
-    setIsEditing(true);
+    setIsEditingMode(true);
   };
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const response = await updateProfile({
+      await updateProfile({
         firstName: editableData.firstName,
         lastName: editableData.lastName,
         dateOfBirth: editableData.dateOfBirth,
@@ -138,15 +145,14 @@ export default function ProfilePortal() {
         whatsappNumber: editableData.whatsappNumber,
         profilePicture: profilePicture,
       });
-      
-      // Update userData with new values
+
       setUserData(prev => ({
         ...prev,
         firstName: editableData.firstName,
         lastName: editableData.lastName,
       }));
       
-      setIsEditing(false);
+      setIsEditingMode(false);
       setToast({ message: 'Profile updated successfully!', type: 'success' });
     } catch (error) {
       const userMessage = reportError('Failed to save profile', error);
@@ -157,8 +163,7 @@ export default function ProfilePortal() {
   };
 
   const handleCancel = () => {
-    setIsEditing(false);
-    // Reset editable data to original values
+    setIsEditingMode(false);
     setEditableData(prev => ({
       ...prev,
       firstName: userData.firstName,
@@ -207,6 +212,8 @@ export default function ProfilePortal() {
     }));
   };
 
+  const isEditingVisible = isEditingMode || isEditing;
+
   return (
     <section className="profile__container">
       <div className="profile__images">
@@ -214,7 +221,7 @@ export default function ProfilePortal() {
           <img src={profilePicture} alt="student's passport" />
         </div>
 
-        {isEditing && (
+        {isEditingVisible && (
           <div className="edit-picture" onClick={handleEditPictureClick}>
             <Settings size={16} />
             <input
@@ -229,7 +236,7 @@ export default function ProfilePortal() {
       </div>
 
       <div className="profile__header-info">
-        {isEditing ? (
+        {isEditingVisible ? (
           <div className="profile__edit-header">
             <div className="profile__name-inputs">
               <input
@@ -271,15 +278,12 @@ export default function ProfilePortal() {
           </h5>
 
           <div className="profile__details">
-
-
-
             <div>
               <span className="profile__details-icon"><GraduationCap size={18}/></span>
 
               <div>
                 <small>Class / Classes Managed</small>
-                {isEditing ? (
+                {isEditingVisible ? (
                   <input
                     type="text"
                     value={userData.class || ''}
@@ -296,7 +300,7 @@ export default function ProfilePortal() {
 
               <div>
                 <small>Date of Birth</small>
-                {isEditing ? (
+                {isEditingVisible ? (
                   <input
                     type="text"
                     value={editableData.dateOfBirth}
@@ -314,7 +318,7 @@ export default function ProfilePortal() {
 
               <div>
                 <small>Gender</small>
-                {isEditing ? (
+                {isEditingVisible ? (
                   <select
                     value={editableData.gender}
                     onChange={(e) => handleInputChange('gender', e.target.value)}
@@ -334,7 +338,7 @@ export default function ProfilePortal() {
 
               <div>
                 <small>Home Address</small>
-                {isEditing ? (
+                {isEditingVisible ? (
                   <input
                     type="text"
                     value={editableData.homeAddress}
@@ -361,7 +365,7 @@ export default function ProfilePortal() {
 
               <div>
                 <small>Guardian Name</small>
-                {isEditing ? (
+                {isEditingVisible ? (
                   <input
                     type="text"
                     value={editableData.guardianName}
@@ -379,7 +383,7 @@ export default function ProfilePortal() {
 
               <div>
                 <small>Contact Number</small>
-                {isEditing ? (
+                {isEditingVisible ? (
                   <input
                     type="tel"
                     value={editableData.contactNumber}
@@ -397,7 +401,7 @@ export default function ProfilePortal() {
 
               <div>
                 <small>Whatsapp Number</small>
-                {isEditing ? (
+                {isEditingVisible ? (
                   <input
                     type="tel"
                     value={editableData.whatsappNumber}
@@ -414,7 +418,7 @@ export default function ProfilePortal() {
       </div>
 
       <div className="profile__actions">
-        {isEditing ? (
+        {isEditingVisible ? (
           <div className="profile__edit-actions">
             <button
               type="button"
@@ -456,3 +460,20 @@ export default function ProfilePortal() {
     </section>
   );
 }
+
+ProfilePortal.propTypes = {
+  userProfile: PropTypes.shape({
+    id: PropTypes.string,
+    fullName: PropTypes.string,
+    email: PropTypes.string,
+    role: PropTypes.string,
+  }),
+  onSaveProfile: PropTypes.func,
+  isEditing: PropTypes.bool,
+};
+
+ProfilePortal.defaultProps = {
+  userProfile: null,
+  onSaveProfile: () => {},
+  isEditing: false,
+};

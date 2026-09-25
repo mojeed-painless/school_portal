@@ -15,17 +15,15 @@ import LibraryPortal from '../components/LibraryPortal.jsx';
 import FeesPortal from '../components/FeesPortal.jsx';
 import ResultsPortal from '../components/ResultsPortal.jsx';
 
-
-  import { 
-    Search,
-    Bell,
-    ChevronDown,
-    ChevronUp,
-    PanelLeftOpen,
-    PanelRightOpen,
-    User,
-    LogOut
-  } from 'lucide-react';
+import { 
+  Search,
+  Bell,
+  ChevronDown,
+  ChevronUp,
+  PanelLeftOpen,
+  PanelRightOpen,
+  LogOut
+} from 'lucide-react';
 
 
 const StudentDashboard = () => {
@@ -82,6 +80,7 @@ const StudentDashboard = () => {
 
 
           <aside className='portal__aside-container'>
+            {/* eslint-disable-next-line no-unused-vars */}
             {asideNavigation.map(({ name, Icon }) => (
               name === 'Sign Out' ?
               <button key={name} 

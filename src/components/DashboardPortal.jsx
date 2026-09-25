@@ -34,30 +34,6 @@ export default function DashboardPortal() {
     { title: 'ACADEMIC SESSION', value: settings.currentSession, IconComponent: ClipboardList, color: '#ef4444' },
   ];
 
-  // Fetch settings and student class subjects
-  useEffect(() => {
-    const initializeData = async () => {
-      try {
-        // Fetch settings first
-        await fetchSettings();
-
-        // Small delay to avoid rate limiting
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        // Fetch student subjects only for students
-        if (user?.role === 'student') {
-          await fetchStudentSubjects();
-        }
-      } catch (error) {
-        console.error('Error initializing dashboard data:', error);
-        // Don't show error to user for initialization failures
-      }
-    };
-
-    initializeData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const fetchStudentSubjects = async () => {
     if (user?.role !== 'student' || !user?.class) {
       console.warn('Cannot fetch student subjects because user is not a student or user.class is missing', user);
@@ -95,6 +71,30 @@ export default function DashboardPortal() {
       // Don't show error message for settings fetch failure
     }
   };
+
+  // Fetch settings and student class subjects
+  useEffect(() => {
+    const initializeData = async () => {
+      try {
+        // Fetch settings first
+        await fetchSettings();
+
+        // Small delay to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Fetch student subjects only for students
+        if (user?.role === 'student') {
+          await fetchStudentSubjects();
+        }
+      } catch (error) {
+        console.error('Error initializing dashboard data:', error);
+        // Don't show error to user for initialization failures
+      }
+    };
+
+    initializeData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
 
 

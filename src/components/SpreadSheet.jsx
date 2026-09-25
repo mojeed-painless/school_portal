@@ -32,8 +32,10 @@ export default function SpreadSheet({ students = [], subjects = [], initialScore
 
     useEffect(() => {
         const normalized = normalizeDisplayData(initialScores);
-        setScores(normalized);
-        setDisplayData(normalized);
+        Promise.resolve().then(() => {
+            setScores(normalized);
+            setDisplayData(normalized);
+        });
     }, [initialScores, normalizeDisplayData]);
 
     useEffect(() => {
@@ -217,7 +219,7 @@ export default function SpreadSheet({ students = [], subjects = [], initialScore
         });
 
         return rankMap;
-    }, [students, allStudents, calculatePercentage, calculatePercentageFromScores, calculateThirdTermPercentage, isThirdTerm, className, department]);
+    }, [students, allStudents, calculatePercentage, calculatePercentageFromScores, calculateThirdTermPercentage, isThirdTerm]);
 
     return (
         <>

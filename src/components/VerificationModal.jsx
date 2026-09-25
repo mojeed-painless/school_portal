@@ -17,7 +17,8 @@ const VerificationModal = ({ email, onVerify, onResend, onClose, isLoading }) =>
       const timer = setTimeout(() => setResendCountdown(resendCountdown - 1), 1000);
       return () => clearTimeout(timer);
     } else if (resendCountdown === 0 && !canResend) {
-      setCanResend(true);
+      // Only update canResend once via promise microtask
+      Promise.resolve().then(() => setCanResend(true));
     }
   }, [resendCountdown, canResend]);
 
