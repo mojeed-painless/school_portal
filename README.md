@@ -168,3 +168,22 @@ For technical inquiries or maintenance requests:
 *Built with ❤️ for educational excellence*
 *Developed by [Mojeed] - December 2025*
 ![Painless Logo](./src/assets/images/pcalogo2.png)
+
+## Docker Deployment (One-Command Startup)
+
+You can bring up the entire application inside an isolated containerized environment with a single command:
+
+### Quick Start with Docker Compose
+
+1. **Start the application:**
+   ```bash
+   docker compose up --build -d
+   ```
+
+2. **Access the application:**
+   Open your browser and navigate to `http://localhost:8080`.
+
+3. **Stop the application:**
+   ```bash
+   docker compose down
+   ```
