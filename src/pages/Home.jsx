@@ -7,6 +7,7 @@ import { login, register, verifyEmail, resendVerificationCode } from '../api/aut
 import { getAllClasses } from '../api/classes';
 import { MoveRight, MoveLeft } from 'lucide-react';
 import VerificationModal from '../components/VerificationModal';
+import { reportError } from '../utils/errorHandler';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -42,7 +43,7 @@ const Login = () => {
         );
         setClasses(uniqueClasses);
       } catch (err) {
-        console.error('Failed to fetch classes:', err);
+        reportError(err, { component: 'Home', action: 'fetchClasses' });
       }
     };
     fetchClasses();

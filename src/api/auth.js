@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { reportError } from '../utils/errorHandler';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:5000' : '');
 
@@ -54,6 +55,7 @@ export const login = async (username, password) => {
     return response.data;
   } catch (error) {
     const errorData = error.response?.data;
+    reportError(error, { api: 'auth', action: 'login', email: username });
     throw {
       message: errorData?.message || 'Login failed. Please try again.',
       ...errorData,
@@ -71,6 +73,7 @@ export const register = async (userData) => {
     return response.data;
   } catch (error) {
     const errorData = error.response?.data;
+    reportError('Registration failed', errorData); // Log error with telemetry
     throw {
       message: errorData?.message || 'Registration failed. Please try again.',
       ...errorData,
@@ -93,6 +96,7 @@ export const verifyEmail = async (email, verificationCode) => {
     return response.data;
   } catch (error) {
     const errorData = error.response?.data;
+    reportError('Email verification failed', errorData); // Log error with telemetry
     throw {
       message: errorData?.message || 'Email verification failed. Please try again.',
       ...errorData,
@@ -113,6 +117,7 @@ export const resendVerificationCode = async (email) => {
     return response.data;
   } catch (error) {
     const errorData = error.response?.data;
+    reportError('Resend verification code failed', errorData); // Log error with telemetry
     throw {
       message: errorData?.message || 'Failed to resend verification code. Please try again.',
       ...errorData,

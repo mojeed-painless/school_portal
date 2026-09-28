@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { getBills, updateBills } from "../api/bills";
+import { reportError } from "../utils/errorHandler";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function validateBankInfo(bankInfo) {
@@ -44,7 +45,7 @@ export default function FeeStructure({ grade }) {
         setBill(data.bill);
         setError('');
       } catch (err) {
-        console.error(err);
+        reportError(err);
         setError('Failed to load bills');
       } finally {
         setLoading(false);
@@ -100,7 +101,7 @@ export default function FeeStructure({ grade }) {
       pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight, undefined, 'FAST');
       pdf.save(`${grade.toLowerCase().replace(/\s+/g, '-')}-bill.pdf`);
     } catch (err) {
-      console.error('Error downloading bill PDF:', err);
+      reportError(err);
       setError('Unable to download bill as PDF.');
     }
   };
@@ -112,7 +113,7 @@ export default function FeeStructure({ grade }) {
       setBill(data.bill);
       setEditing(false);
     } catch (err) {
-      console.error(err);
+      reportError(err, { component: 'Bills', action: 'saveBillChanges', grade });
       setError('Unable to save changes. Make sure you are logged in as admin.');
     } finally {
       setLoading(false);

@@ -3,33 +3,41 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect, vi } from 'vitest';
 import Home from '../Home';
+import { getAllClasses } from '../../api/classes';
+
+vi.mock('../../api/classes', () => ({
+  getAllClasses: vi.fn().mockResolvedValue([]),
+}));
 
 describe('Home Page Component', () => {
-  it('renders portal hero title and quick navigation actions', () => {
+  it('renders the landing portal heading and primary auth CTA', () => {
     render(
       <MemoryRouter>
         <Home />
       </MemoryRouter>
     );
 
-    expect(screen.getByText(/School Portal/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: /Welcome to At-Tanzeel Students Personalized Portal/i })
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Staff Registration/i })).toBeInTheDocument();
   });
 
-  it('switches between Login and Registration tabs seamlessly', () => {
+  it('switches between the login form and registration form', async () => {
     render(
       <MemoryRouter>
         <Home />
       </MemoryRouter>
     );
 
-    const registerTab = screen.getByRole('button', { name: /Register/i });
+    const registerTab = screen.getByRole('button', { name: /Staff Registration/i });
     fireEvent.click(registerTab);
 
-    expect(screen.getByText(/Create an Account/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Staff Registration/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Back to Login/i })).toBeInTheDocument();
 
-    const loginTab = screen.getByRole('button', { name: /Login/i });
-    fireEvent.click(loginTab);
+    fireEvent.click(screen.getByRole('button', { name: /Back to Login/i }));
 
-    expect(screen.getByText(/Sign In/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Login to your account/i })).toBeInTheDocument();
   });
 });
