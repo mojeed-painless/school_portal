@@ -9,7 +9,14 @@ export default defineConfig({
     setupFiles: './src/test/setup.js',
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'json', 'html', 'lcov'],
+      thresholds: {
+        lines: 60,
+        functions: 60,
+        branches: 50,
+        statements: 60,
+      },
+      exclude: ['node_modules/', 'src/test/'],
     },
   },
 });
