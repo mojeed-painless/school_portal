@@ -1,7 +1,38 @@
 import axios from 'axios';
 import { retryableRequest } from '../utils/apiRetry';
+import {
+    UpdateStudentScoresPayloadSchema,
+    SaveResultsPayloadSchema,
+} from '../schemas/resultSchemas';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_BASE_URL = (() => {
+    const configuredBase = import.meta.env.VITE_API_BASE_URL || '/api';
+    const normalizedBase = configuredBase.replace(/\/$/, '');
+    return normalizedBase.endsWith('/api') ? normalizedBase : `${normalizedBase}/api`;
+})();
+
+const normalizeScoreValue = (value, fallback = 0) => {
+    const numericValue = Number(value);
+    return Number.isFinite(numericValue) ? numericValue : fallback;
+};
+
+const normalizeScoresForSchema = (scores) => {
+    if (!scores || typeof scores !== 'object') {
+        return { caScore: 0, examScore: 0 };
+    }
+
+    if ('caScore' in scores || 'examScore' in scores) {
+        return {
+            caScore: normalizeScoreValue(scores.caScore, 0),
+            examScore: normalizeScoreValue(scores.examScore, 0),
+        };
+    }
+
+    return {
+        caScore: normalizeScoreValue(scores.ca ?? scores.test ?? scores.continuousAssessment ?? scores.continuousAssessmentScore, 0),
+        examScore: normalizeScoreValue(scores.exam ?? scores.finalExam ?? scores.totalExam, 0),
+    };
+};
 
 const buildQuery = (params) => {
     const query = new URLSearchParams();
@@ -17,7 +48,7 @@ const buildQuery = (params) => {
 export const getResultsByYear = async (academicYear) => {
     try {
         const response = await retryableRequest(() =>
-            axios.get(`${API_BASE_URL}/api/results/${encodeURIComponent(academicYear)}`, {
+            axios.get(`${API_BASE_URL}/results/${encodeURIComponent(academicYear)}`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
@@ -37,7 +68,7 @@ export const getResultsByYear = async (academicYear) => {
 export const getResultsByYearAndTerm = async (academicYear, termName) => {
     try {
         const response = await retryableRequest(() =>
-            axios.get(`${API_BASE_URL}/api/results/${encodeURIComponent(academicYear)}/${encodeURIComponent(termName)}`, {
+            axios.get(`${API_BASE_URL}/results/${encodeURIComponent(academicYear)}/${encodeURIComponent(termName)}`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
@@ -57,7 +88,7 @@ export const getResultsByYearAndTerm = async (academicYear, termName) => {
 export const getResultsByYearTermClass = async (academicYear, termName, className, department) => {
     try {
         const query = buildQuery({ department });
-        const path = `${API_BASE_URL}/api/results/${encodeURIComponent(academicYear)}/${encodeURIComponent(termName)}/${encodeURIComponent(className)}${query ? `?${query}` : ''}`;
+        const path = `${API_BASE_URL}/results/${encodeURIComponent(academicYear)}/${encodeURIComponent(termName)}/${encodeURIComponent(className)}${query ? `?${query}` : ''}`;
         const response = await retryableRequest(() =>
             axios.get(path, {
                 headers: {
@@ -77,13 +108,10 @@ export const getResultsByYearTermClass = async (academicYear, termName, classNam
 
 // Save or update results
 export const saveResults = async (resultsData) => {
+    const validatedPayload = SaveResultsPayloadSchema.parse(resultsData);
     try {
         const response = await retryableRequest(() =>
-            axios.post(`${API_BASE_URL}/api/results`, resultsData, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`
-                }
-            })
+            axios.post(`${API_BASE_URL}/results/save`, validatedPayload)
         );
         return response.data;
     } catch (error) {
@@ -93,18 +121,34 @@ export const saveResults = async (resultsData) => {
 };
 
 // Update student scores
-export const updateStudentScores = async (academicYear, termName, className, studentId, scores) => {
-    try {
-        const payload = {
-            scores: scores?.scores || scores || {},
-        };
-
-        if (typeof scores?.comments === 'string') {
-            payload.comments = scores.comments;
+export const updateStudentScores = async (...args) => {
+    if (args.length === 1 && args[0] && typeof args[0] === 'object') {
+        const validatedPayload = UpdateStudentScoresPayloadSchema.parse(args[0]);
+        try {
+            const response = await retryableRequest(() =>
+                axios.put(`${API_BASE_URL}/results/update`, validatedPayload)
+            );
+            return response.data;
+        } catch (error) {
+            console.error('Error updating scores:', error);
+            throw error;
         }
+    }
 
+    const [academicYear, termName, className, studentId, scores] = args;
+    const normalizedScores = normalizeScoresForSchema(scores);
+    const payload = {
+        studentId: String(studentId),
+        subject: String(className),
+        term: String(termName),
+        session: String(academicYear),
+        scores: normalizedScores,
+    };
+
+    try {
+        const validatedPayload = UpdateStudentScoresPayloadSchema.parse(payload);
         const response = await retryableRequest(() =>
-            axios.put(`${API_BASE_URL}/api/results/${encodeURIComponent(academicYear)}/${encodeURIComponent(termName)}/${encodeURIComponent(className)}/${encodeURIComponent(studentId)}`, payload, {
+            axios.put(`${API_BASE_URL}/results/${encodeURIComponent(academicYear)}/${encodeURIComponent(termName)}/${encodeURIComponent(className)}/${encodeURIComponent(studentId)}`, validatedPayload, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
@@ -121,7 +165,7 @@ export const updateStudentScores = async (academicYear, termName, className, stu
 export const submitForApproval = async (academicYear, termName, className, department) => {
     try {
         const query = buildQuery({ department });
-        const path = `${API_BASE_URL}/api/results/${encodeURIComponent(academicYear)}/${encodeURIComponent(termName)}/${encodeURIComponent(className)}/submit-approval${query ? `?${query}` : ''}`;
+        const path = `${API_BASE_URL}/results/${encodeURIComponent(academicYear)}/${encodeURIComponent(termName)}/${encodeURIComponent(className)}/submit-approval${query ? `?${query}` : ''}`;
         const response = await retryableRequest(() =>
             axios.put(path, {}, {
                 headers: {
@@ -140,7 +184,7 @@ export const submitForApproval = async (academicYear, termName, className, depar
 export const updateRemovedSubjects = async (academicYear, termName, className, removedSubjects, department) => {
     try {
         const query = buildQuery({ department });
-        const path = `${API_BASE_URL}/api/results/${encodeURIComponent(academicYear)}/${encodeURIComponent(termName)}/${encodeURIComponent(className)}/removed-subjects${query ? `?${query}` : ''}`;
+        const path = `${API_BASE_URL}/results/${encodeURIComponent(academicYear)}/${encodeURIComponent(termName)}/${encodeURIComponent(className)}/removed-subjects${query ? `?${query}` : ''}`;
         const response = await retryableRequest(() =>
             axios.put(path, { removedSubjects }, {
                 headers: {
@@ -159,7 +203,7 @@ export const updateRemovedSubjects = async (academicYear, termName, className, r
 export const approveResults = async (academicYear, termName, className, department) => {
     try {
         const query = buildQuery({ department });
-        const path = `${API_BASE_URL}/api/results/${encodeURIComponent(academicYear)}/${encodeURIComponent(termName)}/${encodeURIComponent(className)}/approve${query ? `?${query}` : ''}`;
+        const path = `${API_BASE_URL}/results/${encodeURIComponent(academicYear)}/${encodeURIComponent(termName)}/${encodeURIComponent(className)}/approve${query ? `?${query}` : ''}`;
         const response = await retryableRequest(() =>
             axios.put(path, {}, {
                 headers: {
@@ -178,7 +222,7 @@ export const approveResults = async (academicYear, termName, className, departme
 export const rejectResults = async (academicYear, termName, className, department) => {
     try {
         const query = buildQuery({ department });
-        const path = `${API_BASE_URL}/api/results/${encodeURIComponent(academicYear)}/${encodeURIComponent(termName)}/${encodeURIComponent(className)}/reject${query ? `?${query}` : ''}`;
+        const path = `${API_BASE_URL}/results/${encodeURIComponent(academicYear)}/${encodeURIComponent(termName)}/${encodeURIComponent(className)}/reject${query ? `?${query}` : ''}`;
         const response = await retryableRequest(() =>
             axios.put(path, {}, {
                 headers: {
@@ -197,7 +241,7 @@ export const rejectResults = async (academicYear, termName, className, departmen
 export const reverseApproval = async (academicYear, termName, className, department) => {
     try {
         const query = buildQuery({ department });
-        const path = `${API_BASE_URL}/api/results/${encodeURIComponent(academicYear)}/${encodeURIComponent(termName)}/${encodeURIComponent(className)}/reverse-approval${query ? `?${query}` : ''}`;
+        const path = `${API_BASE_URL}/results/${encodeURIComponent(academicYear)}/${encodeURIComponent(termName)}/${encodeURIComponent(className)}/reverse-approval${query ? `?${query}` : ''}`;
         const response = await retryableRequest(() =>
             axios.put(path, {}, {
                 headers: {
@@ -216,7 +260,7 @@ export const reverseApproval = async (academicYear, termName, className, departm
 export const getApprovalStatus = async (academicYear, termName, className, department) => {
     try {
         const query = buildQuery({ department });
-        const path = `${API_BASE_URL}/api/results/${encodeURIComponent(academicYear)}/${encodeURIComponent(termName)}/${encodeURIComponent(className)}/status${query ? `?${query}` : ''}`;
+        const path = `${API_BASE_URL}/results/${encodeURIComponent(academicYear)}/${encodeURIComponent(termName)}/${encodeURIComponent(className)}/status${query ? `?${query}` : ''}`;
         const response = await axios.get(path, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`
