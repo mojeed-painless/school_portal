@@ -73,7 +73,7 @@ export const register = async (userData) => {
     return response.data;
   } catch (error) {
     const errorData = error.response?.data;
-    reportError('Registration failed', errorData); // Log error with telemetry
+    reportError(error, { api: 'auth', action: 'register', userData });
     throw {
       message: errorData?.message || 'Registration failed. Please try again.',
       ...errorData,
@@ -96,7 +96,7 @@ export const verifyEmail = async (email, verificationCode) => {
     return response.data;
   } catch (error) {
     const errorData = error.response?.data;
-    reportError('Email verification failed', errorData); // Log error with telemetry
+    reportError(error, { api: 'auth', action: 'verifyEmail', email });
     throw {
       message: errorData?.message || 'Email verification failed. Please try again.',
       ...errorData,
@@ -117,7 +117,7 @@ export const resendVerificationCode = async (email) => {
     return response.data;
   } catch (error) {
     const errorData = error.response?.data;
-    reportError('Resend verification code failed', errorData); // Log error with telemetry
+    reportError(error, { api: 'auth', action: 'resendVerificationCode', email });
     throw {
       message: errorData?.message || 'Failed to resend verification code. Please try again.',
       ...errorData,
