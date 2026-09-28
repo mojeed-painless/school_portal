@@ -4,6 +4,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { getBills, updateBills } from "../api/bills";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function validateBankInfo(bankInfo) {
   if (!bankInfo || typeof bankInfo !== 'object') {
     return { isValid: false, error: 'Bank information is missing' };
