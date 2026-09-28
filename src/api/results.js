@@ -4,6 +4,7 @@ import {
     UpdateStudentScoresPayloadSchema,
     SaveResultsPayloadSchema,
 } from '../schemas/resultSchemas';
+import { reportError } from '../utils/errorHandler';
 
 const API_BASE_URL = (() => {
     const configuredBase = import.meta.env.VITE_API_BASE_URL || '/api';
@@ -59,7 +60,7 @@ export const getResultsByYear = async (academicYear) => {
         if (error.response?.status === 404) {
             return {};
         }
-        console.error('Error fetching results:', error);
+        reportError(error, { api: 'results', action: 'getResultsByYear', academicYear });
         throw error;
     }
 };
@@ -79,7 +80,7 @@ export const getResultsByYearAndTerm = async (academicYear, termName) => {
         if (error.response?.status === 404) {
             return {};
         }
-        console.error('Error fetching results:', error);
+        reportError(error, { api: 'results', action: 'getResultsByYearAndTerm', academicYear, termName });
         throw error;
     }
 };
@@ -101,7 +102,7 @@ export const getResultsByYearTermClass = async (academicYear, termName, classNam
         if (error.response?.status === 404) {
             return {};
         }
-        console.error('Error fetching results:', error);
+        reportError(error, { api: 'results', action: 'getResultsByYearTermClass', academicYear, termName, className, department });
         throw error;
     }
 };
@@ -115,7 +116,7 @@ export const saveResults = async (resultsData) => {
         );
         return response.data;
     } catch (error) {
-        console.error('Error saving results:', error);
+        reportError(error, { api: 'results', action: 'saveResults', payload: resultsData });
         throw error;
     }
 };
@@ -130,7 +131,7 @@ export const updateStudentScores = async (...args) => {
             );
             return response.data;
         } catch (error) {
-            console.error('Error updating scores:', error);
+            reportError(error, { api: 'results', action: 'updateStudentScores', payload: args[0] });
             throw error;
         }
     }
@@ -156,7 +157,7 @@ export const updateStudentScores = async (...args) => {
         );
         return response.data;
     } catch (error) {
-        console.error('Error updating scores:', error);
+        reportError(error, { api: 'results', action: 'updateStudentScores', academicYear, termName, className, studentId, scores });
         throw error;
     }
 };
@@ -175,7 +176,7 @@ export const submitForApproval = async (academicYear, termName, className, depar
         );
         return response.data;
     } catch (error) {
-        console.error('Error submitting for approval:', error);
+        reportError(error, { api: 'results', action: 'submitForApproval', academicYear, termName, className, department });
         throw error;
     }
 };
@@ -194,7 +195,7 @@ export const updateRemovedSubjects = async (academicYear, termName, className, r
         );
         return response.data;
     } catch (error) {
-        console.error('Error updating removed subjects:', error);
+        reportError(error, { api: 'results', action: 'updateRemovedSubjects', academicYear, termName, className, removedSubjects, department });
         throw error;
     }
 };
@@ -213,7 +214,7 @@ export const approveResults = async (academicYear, termName, className, departme
         );
         return response.data;
     } catch (error) {
-        console.error('Error approving results:', error);
+        reportError(error, { api: 'results', action: 'approveResults', academicYear, termName, className, department });
         throw error;
     }
 };
@@ -232,7 +233,7 @@ export const rejectResults = async (academicYear, termName, className, departmen
         );
         return response.data;
     } catch (error) {
-        console.error('Error rejecting results:', error);
+        reportError(error, { api: 'results', action: 'rejectResults', academicYear, termName, className, department });
         throw error;
     }
 };
@@ -251,7 +252,7 @@ export const reverseApproval = async (academicYear, termName, className, departm
         );
         return response.data;
     } catch (error) {
-        console.error('Error reversing approval:', error);
+        reportError(error, { api: 'results', action: 'reverseApproval', academicYear, termName, className, department });
         throw error;
     }
 };
@@ -271,7 +272,7 @@ export const getApprovalStatus = async (academicYear, termName, className, depar
         if (error.response?.status === 404) {
             return { approvalStatus: null };
         }
-        console.error('Error fetching approval status:', error);
+        reportError(error, { api: 'results', action: 'getApprovalStatus', academicYear, termName, className, department });
         throw error;
     }
 };
