@@ -4,6 +4,29 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { getBills, updateBills } from "../api/bills";
 
+// eslint-disable-next-line react-refresh/only-export-components
+export function validateBankInfo(bankInfo) {
+  if (!bankInfo || typeof bankInfo !== 'object') {
+    return { isValid: false, error: 'Bank information is missing' };
+  }
+
+  const { accountNumber, bankName, accountName } = bankInfo;
+
+  if (!bankName || bankName.trim().length < 2) {
+    return { isValid: false, error: 'Valid bank name is required' };
+  }
+
+  if (!accountNumber || !/^\d{10}$/.test(accountNumber.trim())) {
+    return { isValid: false, error: 'Account number must be exactly 10 digits' };
+  }
+
+  if (!accountName || accountName.trim().length < 3) {
+    return { isValid: false, error: 'Account name must be at least 3 characters' };
+  }
+
+  return { isValid: true, error: null };
+}
+
 export default function FeeStructure({ grade }) {
   const [bill, setBill] = useState(null);
   const [editing, setEditing] = useState(false);

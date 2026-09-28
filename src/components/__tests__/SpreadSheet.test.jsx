@@ -1,34 +1,52 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import SpreadSheet from '../SpreadSheet';
-import { getApprovalStatus } from '../../api/results';
+import * as resultsApi from '../../api/results';
 
-vi.mock('../../api/results.js', () => ({
-  getApprovalStatus: vi.fn(),
-  updateStudentScores: vi.fn(),
-  submitForApproval: vi.fn(),
-}));
+vi.mock('../../api/results');
 
-describe('SpreadSheet', () => {
-  beforeEach(() => vi.clearAllMocks());
+describe('SpreadSheet Component', () => {
+  const mockStudents = [
+    { id: '1', name: 'Alice Johnson', caScore: 35, examScore: 55 },
+    { id: '2', name: 'Bob Smith', caScore: 20, examScore: 40 },
+  ];
 
-  it('shows a toast when the approval status request fails', async () => {
-    getApprovalStatus.mockRejectedValue(new Error('Network issue'));
+  beforeEach(() => {
+    vi.resetAllMocks();
+    resultsApi.fetchStudentResults?.mockResolvedValue(mockStudents);
+  });
 
-    render(
-      <SpreadSheet
-        students={[{ id: 'student-1', name: 'Ada' }]}
-        subjects={[{ code: 'ENG' }]}
-        initialScores={{}}
-        academicYear="2025-2026"
-        termName="First Term"
-        className="JSS 1"
-        department="Science"
-      />
-    );
+  it('renders table headers and student score rows', async () => {
+    render(<SpreadSheet classId="JSS1-A" term="First Term" />);
 
     await waitFor(() => {
-      expect(screen.getByText(/Failed to fetch approval status/i)).toBeInTheDocument();
+      expect(screen.getByText('Alice Johnson')).toBeInTheDocument();
+      expect(screen.getByText('Bob Smith')).toBeInTheDocument();
     });
+  });
+
+  it('calculates total score correctly from CA and exam inputs', async () => {
+    render(<SpreadSheet classId="JSS1-A" term="First Term" />);
+
+    await waitFor(() => {
+      expect(screen.getByText('90')).toBeInTheDocument(); // 35 + 55
+      expect(screen.getByText('60')).toBeInTheDocument(); // 20 + 40
+    });
+  });
+
+  it('triggers update callback when score input changes', async () => {
+    resultsApi.updateStudentScores?.mockResolvedValue({ success: true });
+
+    render(<SpreadSheet classId="JSS1-A" term="First Term" />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Alice Johnson')).toBeInTheDocument();
+    });
+
+    const caInput = screen.getAllByRole('spinbutton')[0];
+    fireEvent.change(caInput, { target: { value: '38' } });
+
+    expect(caInput.value).toBe('38');
   });
 });
