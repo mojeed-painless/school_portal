@@ -22,7 +22,7 @@ describe('API Boundary Validation - additional guards', () => {
     };
 
     await expect(saveResults(payload)).resolves.toEqual({ saved: true });
-    expect(axios.post).toHaveBeenCalledWith('/api/results/save', payload);
+    expect(axios.post).toHaveBeenCalledWith('http://localhost:5000/api/results/save', payload);
   });
 
   it('rejects malformed score payloads before sending any request', async () => {
