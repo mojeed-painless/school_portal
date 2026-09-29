@@ -4,21 +4,38 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import SpreadSheet from '../SpreadSheet';
 import * as resultsApi from '../../api/results';
 
-vi.mock('../../api/results');
+vi.mock('../../api/results', () => ({
+  getApprovalStatus: vi.fn(),
+  updateStudentScores: vi.fn(),
+  submitForApproval: vi.fn(),
+}));
 
 describe('SpreadSheet Component', () => {
   const mockStudents = [
-    { id: '1', name: 'Alice Johnson', caScore: 35, examScore: 55 },
-    { id: '2', name: 'Bob Smith', caScore: 20, examScore: 40 },
+    { id: '1', name: 'Alice Johnson' },
+    { id: '2', name: 'Bob Smith' },
   ];
 
   beforeEach(() => {
-    vi.resetAllMocks();
-    resultsApi.fetchStudentResults?.mockResolvedValue(mockStudents);
+    vi.clearAllMocks();
+    resultsApi.getApprovalStatus.mockResolvedValue({ approvalStatus: null });
   });
 
-  it('renders table headers and student score rows', async () => {
-    render(<SpreadSheet classId="JSS1-A" term="First Term" />);
+  it('renders table headers and student rows for the selected class', async () => {
+    render(
+      <SpreadSheet
+        students={mockStudents}
+        subjects={[{ code: 'ENG' }, { code: 'MATH' }]}
+        initialScores={{
+          '1': { scores: { ENG: { test: 35, exam: 55 }, MATH: { test: 30, exam: 45 } }, comments: '' },
+          '2': { scores: { ENG: { test: 20, exam: 40 }, MATH: { test: 25, exam: 35 } }, comments: '' },
+        }}
+        academicYear="2025-2026"
+        termName="First Term"
+        className="JSS1-A"
+        department="Science"
+      />
+    );
 
     await waitFor(() => {
       expect(screen.getByText('Alice Johnson')).toBeInTheDocument();
@@ -26,22 +43,48 @@ describe('SpreadSheet Component', () => {
     });
   });
 
-  it('calculates total score correctly from CA and exam inputs', async () => {
-    render(<SpreadSheet classId="JSS1-A" term="First Term" />);
+  it('calculates total marks correctly from the displayed student scores', async () => {
+    render(
+      <SpreadSheet
+        students={mockStudents}
+        subjects={[{ code: 'ENG' }, { code: 'MATH' }]}
+        initialScores={{
+          '1': { scores: { ENG: { test: 35, exam: 55 }, MATH: { test: 30, exam: 45 } }, comments: '' },
+          '2': { scores: { ENG: { test: 20, exam: 40 }, MATH: { test: 25, exam: 35 } }, comments: '' },
+        }}
+        academicYear="2025-2026"
+        termName="First Term"
+        className="JSS1-A"
+        department="Science"
+      />
+    );
 
     await waitFor(() => {
-      expect(screen.getByText('90')).toBeInTheDocument(); // 35 + 55
-      expect(screen.getByText('60')).toBeInTheDocument(); // 20 + 40
+      expect(screen.getAllByText('90').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('60').length).toBeGreaterThan(0);
     });
   });
 
-  it('triggers update callback when score input changes', async () => {
-    resultsApi.updateStudentScores?.mockResolvedValue({ success: true });
+  it('allows changing a score input without breaking the input state', async () => {
+    render(
+      <SpreadSheet
+        students={mockStudents}
+        subjects={[{ code: 'ENG' }, { code: 'MATH' }]}
+        initialScores={{
+          '1': { scores: { ENG: { test: 35, exam: 55 }, MATH: { test: 30, exam: 45 } }, comments: '' },
+          '2': { scores: { ENG: { test: 20, exam: 40 }, MATH: { test: 25, exam: 35 } }, comments: '' },
+        }}
+        academicYear="2025-2026"
+        termName="First Term"
+        className="JSS1-A"
+        department="Science"
+      />
+    );
 
-    render(<SpreadSheet classId="JSS1-A" term="First Term" />);
+    fireEvent.click(screen.getByRole('button', { name: /Edit Scores/i }));
 
     await waitFor(() => {
-      expect(screen.getByText('Alice Johnson')).toBeInTheDocument();
+      expect(screen.getAllByRole('spinbutton').length).toBeGreaterThan(0);
     });
 
     const caInput = screen.getAllByRole('spinbutton')[0];

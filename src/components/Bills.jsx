@@ -8,7 +8,9 @@ import { reportError } from "../utils/errorHandler";
 // eslint-disable-next-line react-refresh/only-export-components
 export function validateBankInfo(bankInfo) {
   if (!bankInfo || typeof bankInfo !== 'object') {
-    return { isValid: false, error: 'Bank information is missing' };
+    const err = new Error('Bank information is missing');
+    reportError(err, { component: 'Bills', function: 'validateBankInfo' });
+    return { isValid: false, error: err.message };
   }
 
   const { accountNumber, bankName, accountName } = bankInfo;

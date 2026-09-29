@@ -3,7 +3,6 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect, vi } from 'vitest';
 import Home from '../Home';
-import { getAllClasses } from '../../api/classes';
 
 vi.mock('../../api/classes', () => ({
   getAllClasses: vi.fn().mockResolvedValue([]),
